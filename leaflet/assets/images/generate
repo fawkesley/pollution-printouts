@@ -1,0 +1,25 @@
+#!/bin/sh -eux
+
+LOGO_WIDTH="900"
+SVG_LOGO_DIR="../../../../images/logos"
+
+CITIES="bath bristol birmingham brighton cambridge chester edinburgh liverpool manchester oxford york"
+# sheffield newcastle leeds
+
+for city in $CITIES; do
+    LOGOTMP=$(mktemp --suffix=.png)
+
+    # convert SVG to square PNG
+    inkscape -w ${LOGO_WIDTH} ${SVG_LOGO_DIR}/treasure-hunt-${city}-logo.svg -e .logo.png
+
+    # widen the canvas with gravity East, adding transparency to the left
+    convert .logo.png -background Transparent -gravity East -extent 1009 .space-left.png
+
+    # widen and heighten the canvas to add transparency to the top, bottom and right
+    convert .space-left.png -background Transparent -gravity West -extent 2480x1170 .final.png
+
+    # add logo to generic background of same size
+    convert _background-rgb-2480w-1170h.jpg .final.png -composite background-${city}.jpg
+
+    rm .logo.png .space-left.png .final.png
+done
